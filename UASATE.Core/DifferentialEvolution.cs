@@ -17,8 +17,8 @@ public static class DifferentialEvolution
         Func<Vector, Vector>? contraint = null,
         int pasanganMutasi = 1,
         double minDeltaGlobalBestFitness = 0.001,
-        double differentialWeight = 0.9,
-        double crossoverRate = 0.5,
+        double differentialWeight = 0.7,
+        double crossoverRate = 0.7,
         int patience = 15,
         bool verbose = false)
     {

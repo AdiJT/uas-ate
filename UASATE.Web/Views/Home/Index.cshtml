@@ -95,6 +95,23 @@
             </tbody>
         </table>
     </div>
+
+    <div class="row">
+        <h4>Hasil Tes</h4>
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <td>F</td>
+                    <td>CR</td>
+                    <td>n</td>
+                    <td>Mean Global Fitness</td>
+                    <td>Mean Jumlah Generasi</td>
+                </tr>
+            </thead>
+            <tbody id="hasilTes">
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <style>
@@ -143,6 +160,7 @@
         const tablePopulasiAwal = $('#populasiAwal');
         const tablePopulasiAkhir = $('#populasiAkhir');
         const tableLocalBest = $('#localBest');
+        const tableHasilTes = $('#hasilTes');
         let map;
         let featureLayer;
 
@@ -349,6 +367,18 @@
                             <td>${result.localBestsFitness[i]}</td>
                         </tr>`)
                     }
+
+                    // tableHasilTes.html('');
+                    // for (let i = 0; i < result.hasilTes.length; i++) {
+                    //     tableHasilTes.append(`<tr>
+                    //         <td>${i + 1}</td>
+                    //         <td>${result.hasilTes[i].f}</td>
+                    //         <td>${result.hasilTes[i].cr}</td>
+                    //         <td>${result.hasilTes[i].n}</td>
+                    //         <td>${result.hasilTes[i].mGlobal}</td>
+                    //         <td>${result.hasilTes[i].mGenerasi}</td>
+                    //     </tr>`)
+                    // }
 
                     spanCost.html(result.totalJarak);
                     spanPath.html(pathString);
