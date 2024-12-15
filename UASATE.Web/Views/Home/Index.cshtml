@@ -1,13 +1,30 @@
-﻿@{
+﻿@using UASATE.Web.Services
+
+@inject IDestinasiWisataService DestinasiWisataService
+
+@{
     ViewData["Title"] = "Home Page";
+    var daftarWisataDestinasi = DestinasiWisataService.GetAll();
 }
 
 <div class="main-content">
     <div class="row mb-3 d-flex justify-content-center">
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
             <i class="fa fa-user"></i>
-             Nama Anggota
+            Nama Anggota
         </button>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12 col-md-6 pr-0">
+            <label class="form-label">Pilih Tempat Wisata yang Ingin Dikunjungi</label>
+            <select id="end" class="form-control select2" multiple>
+                @foreach (var destinasiWisata in daftarWisataDestinasi)
+                {
+                    <option value="@destinasiWisata.Nama">@destinasiWisata.Nama</option>
+                }
+            </select>
+        </div>
     </div>
 
     <div class="row">
@@ -21,7 +38,7 @@
 
     <div class="row">
         <div class="col-sm-12 mt-3">
-            <button class="btn btn-primary" id="djikstra">Dijkstra</button>
+            <button class="btn btn-primary" id="djikstra">Cari Rute</button>
         </div>
     </div>
 
@@ -35,10 +52,34 @@
         width: 100%;
         height: 600px; /* Sesuaikan untuk layar kecil */
     }
-    
+
     .col {
         padding-right: 0;
     }
+
+    /* HTML marker styles */
+    .price-tag {
+        background-color: #4285F4;
+        border-radius: 8px;
+        color: #FFFFFF;
+        font-size: 14px;
+        padding: 10px 15px;
+        position: relative;
+        font-size: 0.6em;
+    }
+
+        .price-tag::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 100%;
+            transform: translate(-50%, 0);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid #4285F4;
+        }
 </style>
 
 @section Scripts {
@@ -46,6 +87,7 @@
 
     <script type="text/javascript">
         const buttonDjikstra = $("button#djikstra");
+        const selectEnd = $("select#end");
         const spanCost = $("span#cost");
         const spanPath = $("span#path");
         let map;
@@ -77,24 +119,25 @@
                 mapId: "3e8984c4ea81cbad"
             });
 
-            featureLayer = map.getFeatureLayer("ADMINISTRATIVE_AREA_LEVEL_2");
-            const featureStyleOptions = {
-                strokeColor: "#810FCB",
-                strokeOpacity: 1.0,
-                strokeWeight: 3.0,
-                fillColor: "#810FCB",
-                fillOpacity: 0.1,
-            };
-            featureLayer.style = (options) => {
-                if (options.feature.placeId == "ChIJt2h8DSabViwRVWssMPDUjcY") {
-                    return featureStyleOptions;
-                }
-            };
+            // featureLayer = map.getFeatureLayer("ADMINISTRATIVE_AREA_LEVEL_2");
+            // const featureStyleOptions = {
+            //     strokeColor: "#810FCB",
+            //     strokeOpacity: 1.0,
+            //     strokeWeight: 3.0,
+            //     fillColor: "#810FCB",
+            //     fillOpacity: 0.1,
+            // };
+            // featureLayer.style = (options) => {
+            //     if (options.feature.placeId == "ChIJt2h8DSabViwRVWssMPDUjcY") {
+            //         return featureStyleOptions;
+            //     }
+            // };
 
             const directionsService = new google.maps.DirectionsService();
 
             // The marker, positioned at Uluru
             const markers = [];
+            const infoWindows = [];
 
             for (let destinasi of daftarDestinasi) {
                 const contentString =
@@ -118,6 +161,8 @@
                 });
 
                 m.addListener("click", () => {
+                    for (let i of infoWindows) i.close();
+
                     infoWindow.open({
                         anchor: m,
                         map
@@ -129,6 +174,7 @@
                 map.addListener("click", () => infoWindow.close());
 
                 markers.push(m);
+                infoWindows.push(infoWindow)
             }
 
             const directionsRenderers = [];
@@ -147,10 +193,19 @@
 
                 directionsService.route(request, function (result, status) {
                     if (status == 'OK') {
-                        const directionsRenderer = new google.maps.DirectionsRenderer({ 
+                        const directionsRenderer = new google.maps.DirectionsRenderer({
                             markerOptions: { visible: false },
                             preserveViewport: true
                         });
+
+                        fetch('/destinasi-wisata',
+                            {
+                                method: 'POST',
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({ A: edge.v1.value.nama, B: edge.v2.value.nama, Distance: result.routes[0].legs[0].distance.value / 1000 })
+                            })
 
                         directionsRenderer.setMap(map);
                         directionsRenderer.setDirections(result);
@@ -159,80 +214,82 @@
                 });
             }
 
-            // buttonDjikstra.on('click', async function() {
-            //     const start = selectStart.val();
-            //     const daftarKelurahan = selectEnd.val();
+            buttonDjikstra.on('click', async function () {
+                const ends = selectEnd.val();
+                const responsePath = await fetch("/destinasi-wisata/lintasan?d=" + ends.map(e => e.replace('\w+', '+20')).join('&d='));
 
-            //     const request = { Start: start, DaftarKelurahan: daftarKelurahan };
-            //     const responsePath = await fetch("/kelurahans/final", {
-            //         method: "POST",
-            //         headers: {
-            //             "Content-Type": "application/json",
-            //         },
-            //         body: JSON.stringify(request)
-            //     });
+                if (responsePath.ok) {
+                    const result = await responsePath.json();
 
-            //     if (responsePath.ok) {
-            //         const result = await responsePath.json();
+                    for (let d of directionsRenderers) {
+                        d.setMap(null);
+                    }
 
-            //         for (let d of directionsRenderers) {
-            //             d.setMap(null);
-            //         }
-                    
-            //         directionsRenderers.length = 0;
-            //         let pathString = "";
+                    directionsRenderers.length = 0;
+                    let pathString = "";
 
-            //         for (let i = 1; i < result.path.length; i++) {
-            //             const kel1 = result.path[i - 1];
-            //             const kel2 = result.path[i];
+                    for (let i = 0; i < result.lintasan.length; i++) {
 
-            //             const line = [
-            //                 { lat: kel1.value.koordinat.x, lng: kel1.value.koordinat.y },
-            //                 { lat: kel2.value.koordinat.x, lng: kel2.value.koordinat.y }
-            //             ];
+                        const des1 = result.lintasan[i];
+                        let des2 = result.lintasan[i];
 
-            //             const request = {
-            //                 origin: line[0],
-            //                 destination: line[1],
-            //                 travelMode: 'DRIVING',
-            //                 unitSystem: google.maps.UnitSystem.METRIC
-            //             };
+                        if (i < result.lintasan.length - 1) des2 = result.lintasan[i + 1];
+                        else des2 = result.lintasan[0];
 
-            //             directionsService.route(request, function (result, status) {
-            //                 if (status == 'OK') {
-            //                     const directionsRenderer = new google.maps.DirectionsRenderer({
-            //                         markerOptions: { visible: false },
-            //                         preserveViewport: true
-            //                     });
-            //                     directionsRenderer.setMap(map);
-            //                     directionsRenderer.setDirections(result);
-            //                     directionsRenderers.push(directionsRenderer);
-            //                 }
-            //             });
+                        const line = [
+                            { lat: des1.titikKoordinat.x, lng: des1.titikKoordinat.y },
+                            { lat: des2.titikKoordinat.x, lng: des2.titikKoordinat.y }
+                        ];
 
-            //             if (daftarKelurahan.indexOf(kel1.value.nama) == -1) { 
-            //                 pathString += `${kel1.value.nama}`;
-            //             } else {
-            //                 pathString += `<b>${kel1.value.nama}</b>`;
-            //             }
+                        const request = {
+                            origin: line[0],
+                            destination: line[1],
+                            travelMode: 'DRIVING',
+                            unitSystem: google.maps.UnitSystem.METRIC
+                        };
 
-            //             if (i != result.path.length - 1) {
-            //                 pathString += " - ";
-            //             } else {
-            //                 if (daftarKelurahan.indexOf(kel2.value.nama) == -1) {
-            //                     pathString += ` - ${kel2.value.nama}`;
-            //                 } else {
-            //                     pathString += ` - <b>${kel2.value.nama}</b>`;
-            //                 }
-            //             }
-            //         }
+                        directionsService.route(request, function (result, status) {
+                            if (status == 'OK') {
+                                const directionsRenderer = new google.maps.DirectionsRenderer({
+                                    markerOptions: { visible: false },
+                                    preserveViewport: true
+                                });
+                                directionsRenderer.setMap(map);
+                                directionsRenderer.setDirections(result);
+                                directionsRenderers.push(directionsRenderer);
+                            }
+                        });
 
-            //         spanCost.html(result.cost);
-            //         spanPath.html(pathString);
-            //     }
-            // });
+                        pathString += `${des1.nama}`;
+
+                        if (i != result.lintasan.length - 1) {
+                            pathString += " - ";
+                        } else {
+                            pathString += ` - ${des2.nama}`;
+                        }
+                    }
+
+                    spanCost.html(result.totalJarak);
+                    spanPath.html(pathString);
+                }
+            });
         }
 
-        initMap();        
+        initMap();
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('.select2').select2({
+                // Tombol untuk menghapus pilihan
+            });
+        });
+        $(document).ready(function () {
+            // Hanya untuk elemen Select2 dengan atribut multiple
+            $('select.select2[multiple]').select2({
+                placeholder: " Pilih Kelurahan...",
+                closeOnSelect: false,
+                allowClear: true
+            });
+        });
     </script>
 }
