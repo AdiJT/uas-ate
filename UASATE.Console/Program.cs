@@ -24,7 +24,7 @@ for(int i = 0; i < jumlahPopulasi; i++)
 Console.WriteLine($"Jumlah Gen : {jumlahGen}");
 Console.WriteLine($"Jumlah Populasi: {jumlahPopulasi}");
 
-Console.WriteLine($"Populasi Awal : {string.Join("\n", populasiAwal)}");
+Console.WriteLine($"Populasi Awal : \n{string.Join("\n", populasiAwal)}");
 
 var result = DifferentialEvolution.Run(
     jumlahGen,
@@ -39,3 +39,4 @@ Console.WriteLine("\nHasil :");
 Console.WriteLine($"Global Best : {result.GlobalBest}");
 Console.WriteLine($"Global Best Fitness : {fungsiObjektif(result.GlobalBest):F6}");
 Console.WriteLine($"Jumlah Generasi : {result.JumlahGenerasi}");
+Console.WriteLine($"Local Best : \n{string.Join("\n", result.LocalBests.Select(v => fungsiObjektif(v)))}");

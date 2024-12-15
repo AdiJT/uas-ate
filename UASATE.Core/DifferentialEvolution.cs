@@ -39,7 +39,7 @@ public static class DifferentialEvolution
 
         var isBest = (double a, double b) => jenisOptimasi == JenisOptimasi.Maks ? a > b : a < b;
 
-        while (deltaBestFitness > minDeltaBestFitness)
+        while (deltaBestFitness >= minDeltaBestFitness)
         {
             for (int i = 0; i < jumlahPopulasi; i++)
             {
