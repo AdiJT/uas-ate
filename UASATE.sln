@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35122.118
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UASATE.Core", "UASATE.Core\UASATE.Core.csproj", "{A6744850-23DE-463E-9652-506A320D7752}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UASATE.Core", "UASATE.Core\UASATE.Core.csproj", "{A6744850-23DE-463E-9652-506A320D7752}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kruskal.Core", "Kruskal.Core\Kruskal.Core.csproj", "{198CAA90-3D34-4FA1-8524-BC1C9F5B7C8D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UASATE.Console", "UASATE.Console\UASATE.Console.csproj", "{D18A3A6A-AE75-44E0-A85B-8096402CE8E6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{A6744850-23DE-463E-9652-506A320D7752}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A6744850-23DE-463E-9652-506A320D7752}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A6744850-23DE-463E-9652-506A320D7752}.Release|Any CPU.Build.0 = Release|Any CPU
+		{198CAA90-3D34-4FA1-8524-BC1C9F5B7C8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{198CAA90-3D34-4FA1-8524-BC1C9F5B7C8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{198CAA90-3D34-4FA1-8524-BC1C9F5B7C8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{198CAA90-3D34-4FA1-8524-BC1C9F5B7C8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D18A3A6A-AE75-44E0-A85B-8096402CE8E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D18A3A6A-AE75-44E0-A85B-8096402CE8E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D18A3A6A-AE75-44E0-A85B-8096402CE8E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D18A3A6A-AE75-44E0-A85B-8096402CE8E6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
