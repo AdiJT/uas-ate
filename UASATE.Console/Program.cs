@@ -9,8 +9,7 @@ var fungsiObjektif = (Vector v) =>
 };
 
 var jumlahGen = 4;
-var jumlahPopulasi = 10;
-var maksGenerasi = 10;
+var jumlahPopulasi = 20;
 
 var random = new Random();
 var populasiAwal = new List<Vector>(jumlahPopulasi);
@@ -24,7 +23,6 @@ for(int i = 0; i < jumlahPopulasi; i++)
 
 Console.WriteLine($"Jumlah Gen : {jumlahGen}");
 Console.WriteLine($"Jumlah Populasi: {jumlahPopulasi}");
-Console.WriteLine($"Maks Generasi : {maksGenerasi}");
 
 Console.WriteLine($"Populasi Awal : {string.Join("\n", populasiAwal)}");
 
@@ -34,7 +32,6 @@ var result = DifferentialEvolution.Run(
     JenisOptimasi.Min,
     SkemaMutasi.Rand,
     JenisCrossover.Binomial,
-    maksGenerasi,
     fungsiObjektif,
     populasiAwal);
 

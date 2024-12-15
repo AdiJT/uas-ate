@@ -8,7 +8,6 @@ public static class DifferentialEvolution
         JenisOptimasi jenisOptimasi,
         SkemaMutasi skemaMutasi,
         JenisCrossover jenisCrossover,
-        int maksGenerasi,
         Func<Vector, double> fungsiObjektif,
         List<Vector> populasiAwal,
         int pasanganMutasi = 1,
@@ -35,8 +34,10 @@ public static class DifferentialEvolution
         var populasi = populasiAwal.Select(p => new Vector(p)).ToList();
         int generasi = 0;
         double deltaBestFitness = double.PositiveInfinity;
-        double globalBestFitness = jenisOptimasi == JenisOptimasi.Maks ? double.NegativeInfinity : double.PositiveInfinity;
-        List<Vector> localBests = new List<Vector>(maksGenerasi);
+        double globalBestFitness = jenisOptimasi == JenisOptimasi.Maks ? double.MinValue : double.MaxValue;
+        List<Vector> localBests = new List<Vector>();
+
+        var isBest = (double a, double b) => jenisOptimasi == JenisOptimasi.Maks ? a > b : a < b;
 
         while (deltaBestFitness > minDeltaBestFitness)
         {
@@ -60,30 +61,25 @@ public static class DifferentialEvolution
                     crossoverRate);
 
                 //Seleksi
-                if(jenisOptimasi == JenisOptimasi.Maks)
+                if (jenisOptimasi == JenisOptimasi.Maks)
                     populasi[i] = fungsiObjektif(crossover) > fungsiObjektif(populasi[i]) ? crossover : populasi[i];
                 else
                     populasi[i] = fungsiObjektif(crossover) < fungsiObjektif(populasi[i]) ? crossover : populasi[i];
             }
 
             generasi++;
-            var localBest = new Vector(populasi.Zip(populasi.Select(p => fungsiObjektif(p))).Aggregate(
-                (b, c) => (jenisOptimasi == JenisOptimasi.Maks ? c.Second > b.Second : c.Second < b.Second) ? c : b).First);
-            localBests.Add(localBest);
+            var localBest = populasi.Zip(populasi.Select(p => fungsiObjektif(p))).Aggregate((b, c) => isBest(b.Second, c.Second) ? b : c).First;
+            localBests.Add(new Vector(localBest));
             var localBestFitness = fungsiObjektif(localBest);
-            if (jenisOptimasi == JenisOptimasi.Maks ? globalBestFitness < localBestFitness : globalBestFitness > localBestFitness)
+            if (isBest(localBestFitness, globalBestFitness))
             {
                 deltaBestFitness = Math.Abs(globalBestFitness - localBestFitness);
                 globalBestFitness = localBestFitness;
             }
-            else
-            {
-                localBestFitness = Math.Abs(globalBestFitness - globalBestFitness);
-            }
         }
 
         var globalBest = localBests.Zip(localBests.Select(p => fungsiObjektif(p))).Aggregate(
-            (b, c) => (jenisOptimasi == JenisOptimasi.Maks ? c.Second > b.Second : c.Second < b.Second) ? c : b).First;
+            (b, c) => isBest(b.Second, c.Second) ? b : c).First;
 
         return new DifferentialEvolutionResult(
             jumlahGen,
@@ -95,15 +91,15 @@ public static class DifferentialEvolution
     }
 
     private static Vector Mutasi(
-        List<Vector> populasi, 
+        List<Vector> populasi,
         Func<Vector, double> fungsiObjektif,
-        JenisOptimasi jenisOptimasi, 
-        SkemaMutasi skemaMutasi, 
-        int pasanganMutasi, 
+        JenisOptimasi jenisOptimasi,
+        SkemaMutasi skemaMutasi,
+        int pasanganMutasi,
         double differentialWeight)
     {
         var random = new Random();
-        if(skemaMutasi == SkemaMutasi.Rand)
+        if (skemaMutasi == SkemaMutasi.Rand)
         {
             var randomVectors = random.GetItems(populasi.ToArray(), pasanganMutasi * 2 + 1);
             var donor = randomVectors[0];
@@ -112,7 +108,7 @@ public static class DifferentialEvolution
                 donor = donor + differentialWeight * (randomVectors[i * 2 + 1] - randomVectors[i * 2 + 2]);
 
             return donor;
-        } 
+        }
         else
         {
             var randomVectors = random.GetItems(populasi.ToArray(), pasanganMutasi * 2);
@@ -136,9 +132,9 @@ public static class DifferentialEvolution
         var random = new Random();
         var result = new Vector(jumlahGen);
 
-        if(jenisCrossover == JenisCrossover.Binomial)
+        if (jenisCrossover == JenisCrossover.Binomial)
         {
-            for(int i = 0; i < jumlahGen; i++)
+            for (int i = 0; i < jumlahGen; i++)
             {
                 var r = random.NextDouble();
                 if (r <= crossoverRate)
