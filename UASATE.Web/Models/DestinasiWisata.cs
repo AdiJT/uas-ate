@@ -7,7 +7,7 @@ public class DestinasiWisata : IEquatable<DestinasiWisata>
 {
     public string Nama { get; set; } = string.Empty;
     public string PlaceId { get; set; } = string.Empty;
-    public Vector2 TitikKoordinaat { get; set; }
+    public PointF TitikKoordinat { get; set; }
 
     public override int GetHashCode() => Nama.GetHashCode();
 

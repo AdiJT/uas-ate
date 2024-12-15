@@ -77,6 +77,18 @@ public class Graph<T> where T : IEquatable<T>
             return _vertices[indexA].AdjencyList[adjIndexB].weight;
     }
 
+    public void SetEdgeCost(Vertex<T> a, Vertex<T> b, double weight)
+    {
+        var verteksA = _vertices[_vertices.IndexOf(a)];
+        var verteksB = _vertices[_vertices.IndexOf(b)];
+
+        var indeksBdiA = verteksA.AdjencyList.FindIndex(adj => adj.adj == verteksA);
+        var indeksAdiB = verteksA.AdjencyList.FindIndex(adj => adj.adj == verteksA);
+
+        verteksA.AdjencyList[indeksBdiA] = (verteksB, weight);
+        verteksB.AdjencyList[indeksAdiB] = (verteksA, weight);
+    }
+
     public int AddVertex(Vertex<T> v)
     {
         if (_vertices.Contains(v))
