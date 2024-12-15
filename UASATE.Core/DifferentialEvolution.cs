@@ -11,7 +11,7 @@ public static class DifferentialEvolution
         int maksGenerasi,
         Func<Vector, double> fungsiObjektif,
         List<Vector> populasiAwal,
-        int jumlahVectorMutasi = 1,
+        int pasanganMutasi = 1,
         double minDeltaBestFitness = 0.001,
         double differentialWeight = 0.9,
         double crossoverRate = 0.5,
@@ -20,7 +20,7 @@ public static class DifferentialEvolution
         //Iniliasasi
         var random = new Random();
 
-        if (jumlahPopulasi < jumlahVectorMutasi * 2 + 2)
+        if (jumlahPopulasi < pasanganMutasi * 2 + 2)
             throw new ArgumentException(nameof(jumlahPopulasi), "Tidak cukup");
 
         if (populasiAwal.Count != jumlahPopulasi)
@@ -48,7 +48,7 @@ public static class DifferentialEvolution
                     fungsiObjektif,
                     jenisOptimasi,
                     skemaMutasi,
-                    jumlahVectorMutasi,
+                    pasanganMutasi,
                     differentialWeight);
 
                 //Crossover
@@ -99,27 +99,27 @@ public static class DifferentialEvolution
         Func<Vector, double> fungsiObjektif,
         JenisOptimasi jenisOptimasi, 
         SkemaMutasi skemaMutasi, 
-        int jumlahVectorMutasi, 
+        int pasanganMutasi, 
         double differentialWeight)
     {
         var random = new Random();
         if(skemaMutasi == SkemaMutasi.Rand)
         {
-            var randomVectors = random.GetItems(populasi.ToArray(), jumlahVectorMutasi * 2 + 1);
+            var randomVectors = random.GetItems(populasi.ToArray(), pasanganMutasi * 2 + 1);
             var donor = randomVectors[0];
 
-            for (int i = 0; i < jumlahVectorMutasi; i++)
+            for (int i = 0; i < pasanganMutasi; i++)
                 donor = donor + differentialWeight * (randomVectors[i * 2 + 1] - randomVectors[i * 2 + 2]);
 
             return donor;
         } 
         else
         {
-            var randomVectors = random.GetItems(populasi.ToArray(), jumlahVectorMutasi * 2);
+            var randomVectors = random.GetItems(populasi.ToArray(), pasanganMutasi * 2);
             var donor = populasi.Zip(populasi.Select(p => fungsiObjektif(p))).Aggregate(
                 (b, c) => (jenisOptimasi == JenisOptimasi.Maks ? c.Second > b.Second : c.Second < b.Second) ? c : b).First;
 
-            for (int i = 0; i < jumlahVectorMutasi; i++)
+            for (int i = 0; i < pasanganMutasi; i++)
                 donor = donor + differentialWeight * (randomVectors[i * 2] - randomVectors[i * 2 + 1]);
 
             return donor;
