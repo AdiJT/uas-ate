@@ -1,4 +1,6 @@
-﻿namespace UASATE.Core;
+﻿using UASATE.Core.Abstracts;
+
+namespace UASATE.Core;
 
 public static class DifferentialEvolution
 {
@@ -10,6 +12,9 @@ public static class DifferentialEvolution
         JenisCrossover jenisCrossover,
         Func<Vector, double> fungsiObjektif,
         List<Vector> populasiAwal,
+        int maksGenerasi,
+        IEncoding? encoding = null,
+        Func<Vector, Vector>? contraint = null,
         int pasanganMutasi = 1,
         double minDeltaBestFitness = 0.001,
         double differentialWeight = 0.9,
@@ -20,10 +25,10 @@ public static class DifferentialEvolution
         var random = new Random();
 
         if (jumlahPopulasi < pasanganMutasi * 2 + 2)
-            throw new ArgumentException(nameof(jumlahPopulasi), "Tidak cukup");
+            throw new ArgumentException("Tidak cukup", nameof(jumlahPopulasi));
 
         if (populasiAwal.Count != jumlahPopulasi)
-            throw new ArgumentException(nameof(populasiAwal), $"Panjang tidak sama dengan {nameof(jumlahPopulasi)}");
+            throw new ArgumentException($"Panjang tidak sama dengan {nameof(jumlahPopulasi)}", nameof(populasiAwal));
 
         if (differentialWeight < 0 || differentialWeight > 1)
             throw new ArgumentOutOfRangeException(nameof(differentialWeight), "Harus antara 0 dan 1");
@@ -38,15 +43,17 @@ public static class DifferentialEvolution
         List<Vector> localBests = new List<Vector>();
 
         var isBest = (double a, double b) => jenisOptimasi == JenisOptimasi.Maks ? a > b : a < b;
+        var fObjektif = (Vector v) => encoding is null ? fungsiObjektif(v) : fungsiObjektif(encoding.Decode(v));
 
-        while (deltaBestFitness >= minDeltaBestFitness)
+        while (generasi < maksGenerasi && deltaBestFitness >= minDeltaBestFitness)
         {
+            var populasiBaru = new List<Vector>(jumlahPopulasi);
             for (int i = 0; i < jumlahPopulasi; i++)
             {
                 //Mutasi
                 var donor = Mutasi(
                     populasi,
-                    fungsiObjektif,
+                    fObjektif,
                     jenisOptimasi,
                     skemaMutasi,
                     pasanganMutasi,
@@ -61,16 +68,17 @@ public static class DifferentialEvolution
                     crossoverRate);
 
                 //Seleksi
-                if (jenisOptimasi == JenisOptimasi.Maks)
-                    populasi[i] = fungsiObjektif(crossover) > fungsiObjektif(populasi[i]) ? crossover : populasi[i];
-                else
-                    populasi[i] = fungsiObjektif(crossover) < fungsiObjektif(populasi[i]) ? crossover : populasi[i];
+                if (encoding is not null)
+                    crossover = encoding.Constraint(crossover);
+
+                populasiBaru.Add(isBest(fObjektif(crossover), fObjektif(populasi[i])) ? crossover : populasi[i]);
             }
 
+            populasi = populasiBaru;
             generasi++;
-            var localBest = populasi.Zip(populasi.Select(p => fungsiObjektif(p))).Aggregate((b, c) => isBest(b.Second, c.Second) ? b : c).First;
+            var localBest = populasi.Zip(populasi.Select(p => fObjektif(p))).Aggregate((b, c) => isBest(b.Second, c.Second) ? b : c).First;
             localBests.Add(new Vector(localBest));
-            var localBestFitness = fungsiObjektif(localBest);
+            var localBestFitness = fObjektif(localBest);
             if (isBest(localBestFitness, globalBestFitness))
             {
                 deltaBestFitness = Math.Abs(globalBestFitness - localBestFitness);
@@ -78,7 +86,7 @@ public static class DifferentialEvolution
             }
         }
 
-        var globalBest = localBests.Zip(localBests.Select(p => fungsiObjektif(p))).Aggregate(
+        var globalBest = localBests.Zip(localBests.Select(p => fObjektif(p))).Aggregate(
             (b, c) => isBest(b.Second, c.Second) ? b : c).First;
 
         return new DifferentialEvolutionResult(
