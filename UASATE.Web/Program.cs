@@ -115,6 +115,16 @@ app.MapGet(
     
             return cost;
         };
+
+        var vector2Destinasi = (Vector v) =>
+        {
+            var list = new List<string>();
+
+            for (int i = 0; i < v.Dimension; i++)
+                list.Add(subGraph.Vertices[(int)v[i]].Value.Nama);
+
+            return list;
+        };
     
         var populasiAwal = encoding.GeneratePopulasi(jumlahPopulasi);
     
@@ -132,7 +142,8 @@ app.MapGet(
             fungsiObjektif: fungsiObjektif,
             populasiAwal: populasiAwal,
             encoding: encoding,
-            maksGenerasi: maksGenerasi);
+            maksGenerasi: maksGenerasi,
+            patience:40);
     
         logger.LogInformation("\nHasil :");
         logger.LogInformation($"Global Best : {encoding.Decode(result.GlobalBest)}");
@@ -148,16 +159,22 @@ app.MapGet(
         {
             lintasan,
             totalJarak = fungsiObjektif(decoded),
-            globalBest = result.GlobalBest,
-            globalBestDecoded = decoded,
-            localBests = result.LocalBests,
-            localBestsDecoded = result.LocalBests.Select(l => encoding.Decode(l)).ToList(),
-            populasiAwal,
-            populasiAwalDecoded = populasiAwal.Select(l => encoding.Decode(l)).ToList(),
-            populasiAkhir = result.Populasi,
-            populasiAkhirDecoded = result.Populasi.Select(l => encoding.Decode(l)).ToList(),
+            globalBest = result.GlobalBest.ToString(),
+            globalBestDecoded = vector2Destinasi(decoded),
+            globalBestFitness = fungsiObjektif(decoded),
+            localBests = result.LocalBests.Select(l => l.ToString()),
+            localBestsDecoded = result.LocalBests.Select(l => vector2Destinasi(encoding.Decode(l))).ToList(),
+            localBestsFitness = result.LocalBests.Select(l => fungsiObjektif(encoding.Decode(l))).ToList(),
+            populasiAwal = populasiAwal.Select(l => l.ToString()),
+            populasiAwalDecoded = populasiAwal.Select(l => vector2Destinasi(encoding.Decode(l))).ToList(),
+            populasiAwalFitness = populasiAwal.Select(l => fungsiObjektif(encoding.Decode(l))).ToList(),
+            populasiAkhir = result.Populasi.Select(l => l.ToString()),
+            populasiAkhirDecoded = result.Populasi.Select(l => vector2Destinasi(encoding.Decode(l))).ToList(),
+            populasiAkhirFitness = result.Populasi.Select(l => fungsiObjektif(encoding.Decode(l))).ToList(),
             jumlahPopulasi,
-            jumlahGenerasi = result.JumlahGenerasi
+            jumlahGenerasi = result.JumlahGenerasi,
+            jumlahGen = result.JumlahGen,
+            maksGenerasi
         });
     });
 

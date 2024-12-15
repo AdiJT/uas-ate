@@ -13,23 +13,32 @@ internal class Program
     private static void UjiPadaGraph()
     {
         var graph = new Graph<string>(
-            ["A", "B", "C", "D", "E"],
+            ["A", "B", "C", "D", "E", "F", "G"],
             [
                 ("A", "B", 60d),
                 ("A", "C", 100d),
                 ("A", "D", 50d),
                 ("A", "E", 90d),
+                ("A", "F", 34d),
+                ("A", "G", 60d),
                 ("B", "C", 70d),
                 ("B", "D", 40d),
                 ("B", "E", 30d),
+                ("B", "F", 70d),
+                ("B", "G", 35d),
                 ("C", "D", 65d),
                 ("C", "E", 55d),
+                ("C", "F", 34d),
+                ("C", "G", 70d),
                 ("D", "E", 110d),
+                ("D", "F", 20d),
+                ("D", "G", 56d),
+                ("F", "G", 80d),
             ]
         );
 
         var maksGenerasi = 1000;
-        var jumlahPopulasi = 20;
+        var jumlahPopulasi = 4;
 
         var random = new Random();
         var encoding = new OrdinalEncoding(graph.Vertices.Count);
@@ -120,7 +129,7 @@ internal class Program
             jumlahGen,
             jumlahPopulasi,
             JenisOptimasi.Min,
-            SkemaMutasi.Rand,
+            SkemaMutasi.Best,
             JenisCrossover.Binomial,
             fungsiObjektif,
             populasiAwal,

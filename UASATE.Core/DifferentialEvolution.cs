@@ -16,9 +16,10 @@ public static class DifferentialEvolution
         IEncoding? encoding = null,
         Func<Vector, Vector>? contraint = null,
         int pasanganMutasi = 1,
-        double minDeltaBestFitness = 0.001,
+        double minDeltaGlobalBestFitness = 0.001,
         double differentialWeight = 0.9,
         double crossoverRate = 0.5,
+        int patience = 15,
         bool verbose = false)
     {
         //Iniliasasi
@@ -38,14 +39,15 @@ public static class DifferentialEvolution
 
         var populasi = populasiAwal.Select(p => new Vector(p)).ToList();
         int generasi = 0;
-        double deltaBestFitness = double.PositiveInfinity;
+        int generationsWithoutChanges = 0;
+        double deltaGlobalBestFitness = double.PositiveInfinity;
         double globalBestFitness = jenisOptimasi == JenisOptimasi.Maks ? double.MinValue : double.MaxValue;
         List<Vector> localBests = new List<Vector>();
 
         var isBest = (double a, double b) => jenisOptimasi == JenisOptimasi.Maks ? a > b : a < b;
         var fObjektif = (Vector v) => encoding is null ? fungsiObjektif(v) : fungsiObjektif(encoding.Decode(v));
 
-        while (generasi < maksGenerasi && deltaBestFitness >= minDeltaBestFitness)
+        while (generasi < maksGenerasi && (generationsWithoutChanges < patience || deltaGlobalBestFitness >= minDeltaGlobalBestFitness))
         {
             var populasiBaru = new List<Vector>(jumlahPopulasi);
             for (int i = 0; i < jumlahPopulasi; i++)
@@ -81,8 +83,13 @@ public static class DifferentialEvolution
             var localBestFitness = fObjektif(localBest);
             if (isBest(localBestFitness, globalBestFitness))
             {
-                deltaBestFitness = Math.Abs(globalBestFitness - localBestFitness);
+                deltaGlobalBestFitness = Math.Abs(globalBestFitness - localBestFitness);
                 globalBestFitness = localBestFitness;
+                generationsWithoutChanges = 0;
+            } else
+            {
+                deltaGlobalBestFitness = Math.Abs(globalBestFitness - globalBestFitness);
+                generationsWithoutChanges++;
             }
         }
 

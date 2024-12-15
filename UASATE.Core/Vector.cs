@@ -43,7 +43,7 @@ public class Vector
             _values[i] = vector[i];
     }
 
-    public override string ToString() => $"[{string.Join(", ", _values)}]";
+    public override string ToString() => $"[{string.Join(", ", _values.Select(s => s.ToString("F8")))}]";
 
     public static Vector operator+(Vector left, Vector right)
     {

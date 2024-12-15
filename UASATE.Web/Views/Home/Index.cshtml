@@ -9,10 +9,12 @@
 
 <div class="main-content">
     <div class="row mb-3 d-flex justify-content-center">
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-            <i class="fa fa-user"></i>
-            Nama Anggota
-        </button>
+        <div class="col">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                <i class="fa fa-user"></i>
+                Nama Anggota
+            </button>
+        </div>
     </div>
 
     <div class="row">
@@ -45,6 +47,54 @@
     <hr>
 
     <div id="map" class="mt-3"></div>
+
+    <div class="row">
+        <h4>Populasi Awal</h4>
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <td>No</td>
+                    <td>Individu (Encoded)</td>
+                    <td>Individu (Decoded)</td>
+                    <td>Fitness</td>
+                </tr>
+            </thead>
+            <tbody id="populasiAwal">
+            </tbody>
+        </table>
+    </div>
+
+    <div class="row">
+        <h4>Populasi Akhir</h4>
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <td>No</td>
+                    <td>Individu (Encoded)</td>
+                    <td>Individu (Decoded)</td>
+                    <td>Fitness</td>
+                </tr>
+            </thead>
+            <tbody id="populasiAkhir">
+            </tbody>
+        </table>
+    </div>
+
+    <div class="row">
+        <h4>Local Best</h4>
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <td>Generasi</td>
+                    <td>Individu (Encoded)</td>
+                    <td>Individu (Decoded)</td>
+                    <td>Fitness</td>
+                </tr>
+            </thead>
+            <tbody id="localBest">
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <style>
@@ -90,6 +140,9 @@
         const selectEnd = $("select#end");
         const spanCost = $("span#cost");
         const spanPath = $("span#path");
+        const tablePopulasiAwal = $('#populasiAwal');
+        const tablePopulasiAkhir = $('#populasiAkhir');
+        const tableLocalBest = $('#localBest');
         let map;
         let featureLayer;
 
@@ -267,6 +320,34 @@
                         } else {
                             pathString += ` - ${des2.nama}`;
                         }
+                    }
+
+                    tablePopulasiAwal.html('');
+                    tablePopulasiAkhir.html('');
+                    for (let i = 0; i < result.jumlahPopulasi; i++) {
+                        tablePopulasiAwal.append(`<tr>
+                            <td>${i + 1}</td>
+                            <td>${result.populasiAwal[i]}</td>
+                            <td>${result.populasiAwalDecoded[i].join(', ')}</td>
+                            <td>${result.populasiAwalFitness[i]}</td>
+                        </tr>`)
+
+                        tablePopulasiAkhir.append(`<tr>
+                            <td>${i + 1}</td>
+                            <td>${result.populasiAkhir[i]}</td>
+                            <td>${result.populasiAkhirDecoded[i].join(', ')}</td>
+                            <td>${result.populasiAkhirFitness[i]}</td>
+                        </tr>`)
+                    }
+
+                    tableLocalBest.html('');
+                    for (let i = 0; i < result.jumlahGenerasi; i++) {
+                        tableLocalBest.append(`<tr>
+                            <td>${i + 1}</td>
+                            <td>${result.localBests[i]}</td>
+                            <td>${result.localBestsDecoded[i].join(', ')}</td>
+                            <td>${result.localBestsFitness[i]}</td>
+                        </tr>`)
                     }
 
                     spanCost.html(result.totalJarak);
