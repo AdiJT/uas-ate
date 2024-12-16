@@ -8,10 +8,13 @@ internal class Program
     private static void Main(string[] args)
     {
         UjiPadaGraph();
+        Console.WriteLine();
+        UjiPadaFungsiBenchmark();
     }
 
     private static void UjiPadaGraph()
     {
+        Console.WriteLine("Uji Pada Graph");
         var graph = new Graph<string>(
             ["A", "B", "C", "D", "E", "F", "G"],
             [
@@ -38,7 +41,7 @@ internal class Program
         );
 
         var maksGenerasi = 1000;
-        var jumlahPopulasi = 4;
+        var jumlahPopulasi = 35;
 
         var random = new Random();
         var encoding = new OrdinalEncoding(graph.Vertices.Count);
@@ -84,7 +87,8 @@ internal class Program
             fungsiObjektif: fungsiObjektif,
             populasiAwal: populasiAwal,
             encoding: encoding,
-            maksGenerasi: maksGenerasi);
+            maksGenerasi: maksGenerasi,
+            elitism: true);
 
         Console.WriteLine("\nHasil :");
         Console.WriteLine("Global Best : ");
@@ -99,6 +103,7 @@ internal class Program
 
     private static void UjiPadaFungsiBenchmark()
     {
+        Console.WriteLine("Uji Pada Fungsi Benchmark:");
         var fungsiObjektif = (Vector v) =>
         {
             var result = 0d;
@@ -133,7 +138,8 @@ internal class Program
             JenisCrossover.Binomial,
             fungsiObjektif,
             populasiAwal,
-            maksGenerasi: 2000);
+            maksGenerasi: 2000,
+            elitism:true);
 
         Console.WriteLine("\nHasil :");
         Console.WriteLine($"Global Best : {result.GlobalBest}");

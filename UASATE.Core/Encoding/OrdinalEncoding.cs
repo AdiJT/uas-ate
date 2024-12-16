@@ -62,7 +62,7 @@ public class OrdinalEncoding : IEncoding
 
         for(int i = 0; i < JumlahItem; i++)
         {
-            result[i] =  (int)Math.Clamp(vector[i], 0, JumlahItem - i - 1);
+            result[i] =  Math.Clamp(Math.Round(vector[i]), 0, JumlahItem - i - 1);
         }
 
         return result;

@@ -151,6 +151,7 @@
 
 @section Scripts {
     <partial name="_MapsApiPartial" />
+    <partial name="_DataTablePartial" />
 
     <script type="text/javascript">
         const buttonDjikstra = $("button#djikstra");
@@ -342,6 +343,11 @@
 
                     tablePopulasiAwal.html('');
                     tablePopulasiAkhir.html('');
+
+                    new DataTable(tablePopulasiAwal.parent()).destroy();
+                    new DataTable(tablePopulasiAkhir.parent()).destroy();
+                    new DataTable(tableLocalBest.parent()).destroy();
+
                     for (let i = 0; i < result.jumlahPopulasi; i++) {
                         tablePopulasiAwal.append(`<tr>
                             <td>${i + 1}</td>
@@ -379,6 +385,8 @@
                     //         <td>${result.hasilTes[i].mGenerasi}</td>
                     //     </tr>`)
                     // }
+
+                    $('.table').DataTable();
 
                     spanCost.html(result.totalJarak);
                     spanPath.html(pathString);

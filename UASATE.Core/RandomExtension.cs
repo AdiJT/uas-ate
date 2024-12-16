@@ -49,4 +49,21 @@ public static class RandomExtension
     {
         return random.GetItems(choices.ToArray(), 1)[0];
     }
+
+    public static T[] GetDistinctItems<T>(this Random random, T[] choices, int length)
+    {
+        var items = new T[length];
+
+        for(int i = 0; i < length; i++)
+        {
+            var item = choices[random.Next(0, choices.Length)];
+
+            while(items.Contains(item))
+                item = choices[random.Next(0, choices.Length)];
+
+            items[i] = item;
+        }
+
+        return items;
+    }
 }

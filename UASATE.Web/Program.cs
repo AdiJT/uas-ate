@@ -86,7 +86,7 @@ app.MapGet(
                         graph.EdgeCost(new Vertex<DestinasiWisata>(destinasi), new Vertex<DestinasiWisata>(destinasi2))));
 
         var maksGenerasi = 1000;
-        var jumlahPopulasi = 20;
+        var jumlahPopulasi = 40;
 
         var random = new Random();
         var encoding = new OrdinalEncoding(subGraph.Vertices.Count);
@@ -143,9 +143,10 @@ app.MapGet(
             populasiAwal: populasiAwal,
             encoding: encoding,
             maksGenerasi: maksGenerasi,
-            patience: 40,
-            differentialWeight: 0.6,
-            crossoverRate: 0.7);
+            patience: 30,
+            differentialWeight: 0.7,
+            crossoverRate: 0.7,
+            elitism: true);
 
         logger.LogInformation("\nHasil :");
         logger.LogInformation($"Global Best : {encoding.Decode(result.GlobalBest)}");
