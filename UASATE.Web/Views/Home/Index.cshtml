@@ -10,7 +10,7 @@
 <div class="main-content">
     <div class="row mb-3 d-flex justify-content-center">
         <div class="col">
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#exampleModal">
                 <i class="fa fa-user"></i>
                 Nama Anggota
             </button>
@@ -18,7 +18,7 @@
     </div>
 
     <div class="row">
-        <div class="col-sm-12 col-md-6 pr-0">
+        <div class="col-sm-12 col-md-12 pr-0">
             <label class="form-label">Pilih Tempat Wisata yang Ingin Dikunjungi</label>
             <select id="end" class="form-control select2" multiple>
                 @foreach (var destinasiWisata in daftarWisataDestinasi)
@@ -32,7 +32,7 @@
         </div>
     </div>
 
-    <div class="row">
+    <div class="row" style="margin-top: 5px"> 
         <div class="col-sm-12 col-md-6 mt-3">
             Total Cost : <span id="cost"></span><span> Km</span>
         </div>
@@ -51,7 +51,7 @@
 
     <div id="map" class="mt-3"></div>
 
-    <div class="row">
+    <div class="row" style="margin-top: 20px">
         <h4>Populasi Awal</h4>
         <table class="table table-bordered table-striped">
             <thead>
@@ -409,7 +409,7 @@
         $(document).ready(function () {
             // Hanya untuk elemen Select2 dengan atribut multiple
             $('select.select2[multiple]').select2({
-                placeholder: " Pilih Kelurahan...",
+                placeholder: " Pilih Lokasi...",
                 closeOnSelect: false,
                 allowClear: true
             });
