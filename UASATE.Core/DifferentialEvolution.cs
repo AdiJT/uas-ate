@@ -50,9 +50,10 @@ public static class DifferentialEvolution
 
         while (generasi < maksGenerasi && (generationsWithoutChanges < patience || deltaGlobalBestFitness >= minDeltaGlobalBestFitness))
         {
-            var populasiBaru = new List<Vector>(jumlahPopulasi);
+            var populasiBaru = new Vector[jumlahPopulasi];
             var indexIndividuTerbaik = populasi.Select(p => fungsiObjektif(p)).ToList().ArgMin();
-            for (int i = 0; i < jumlahPopulasi; i++)
+
+            Parallel.For(0, jumlahPopulasi, (i) =>
             {
                 //Mutasi
                 var donor = Mutasi(
@@ -76,12 +77,12 @@ public static class DifferentialEvolution
                     crossover = encoding.Constraint(crossover);
 
                 if (elitism)
-                    populasiBaru.Add(isBest(fObjektif(crossover), fObjektif(populasi[i])) && i != indexIndividuTerbaik ? crossover : populasi[i]);
+                    populasiBaru[i] = isBest(fObjektif(crossover), fObjektif(populasi[i])) && i != indexIndividuTerbaik ? crossover : populasi[i];
                 else
-                    populasiBaru.Add(isBest(fObjektif(crossover), fObjektif(populasi[i])) ? crossover : populasi[i]);
-            }
+                    populasiBaru[i] = isBest(fObjektif(crossover), fObjektif(populasi[i])) ? crossover : populasi[i];
+            });
 
-            populasi = populasiBaru;
+            populasi = populasiBaru.ToList();
             generasi++;
             var localBest = populasi.Zip(populasi.Select(p => fObjektif(p))).Aggregate((b, c) => isBest(b.Second, c.Second) ? b : c).First;
             localBests.Add(new Vector(localBest));
@@ -164,7 +165,7 @@ public static class DifferentialEvolution
                     result[i] = asli[i];
             }
         }
-        else
+        else  
         {
             var k = random.Next(0, jumlahGen);
             var l = random.Next(1, jumlahGen + 1);

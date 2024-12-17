@@ -23,7 +23,10 @@
             <select id="end" class="form-control select2" multiple>
                 @foreach (var destinasiWisata in daftarWisataDestinasi)
                 {
-                    <option value="@destinasiWisata.Nama">@destinasiWisata.Nama</option>
+                    @if (destinasiWisata.Nama != "Harper Kupang")
+                    {
+                        <option value="@destinasiWisata.Nama">@destinasiWisata.Nama</option>
+                    }
                 }
             </select>
         </div>
@@ -96,11 +99,12 @@
         </table>
     </div>
 
-    <div class="row">
+    @* <div class="row">
         <h4>Hasil Tes</h4>
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
+                    <td>No</td>
                     <td>F</td>
                     <td>CR</td>
                     <td>n</td>
@@ -111,7 +115,7 @@
             <tbody id="hasilTes">
             </tbody>
         </table>
-    </div>
+    </div> *@
 </div>
 
 <style>
@@ -341,13 +345,13 @@
                         }
                     }
 
-                    tablePopulasiAwal.html('');
-                    tablePopulasiAkhir.html('');
-
                     new DataTable(tablePopulasiAwal.parent()).destroy();
                     new DataTable(tablePopulasiAkhir.parent()).destroy();
                     new DataTable(tableLocalBest.parent()).destroy();
+                    // new DataTable(tableHasilTes.parent()).destroy();
 
+                    tablePopulasiAwal.html('');
+                    tablePopulasiAkhir.html('');
                     for (let i = 0; i < result.jumlahPopulasi; i++) {
                         tablePopulasiAwal.append(`<tr>
                             <td>${i + 1}</td>

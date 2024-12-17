@@ -60,6 +60,19 @@ app.MapPost("/destinasi-wisata", (IDestinasiWisataService service, [FromBody] Se
     return Results.Ok();
 });
 
+static double Add(ref double location1, double value)
+{
+    double newCurrentValue = location1; // non-volatile read, so may be stale
+    while (true)
+    {
+        double currentValue = newCurrentValue;
+        double newValue = currentValue + value;
+        newCurrentValue = Interlocked.CompareExchange(ref location1, newValue, currentValue);
+        if (newCurrentValue.Equals(currentValue)) // see "Update" below
+            return newValue;
+    }
+}
+
 app.MapGet(
     "/destinasi-wisata/lintasan",
     ([FromServices] IDestinasiWisataService service, [FromServices] ILogger<DestinasiWisata> logger, [FromQuery] string[] d) =>
@@ -72,6 +85,9 @@ app.MapGet(
 
             daftarDestinasi.Add(destinasi);
         }
+
+        var harper = service.Get("Harper Kupang")!;
+        daftarDestinasi.Add(harper);
 
         var graph = service.GetGraph();
 
@@ -86,7 +102,7 @@ app.MapGet(
                         graph.EdgeCost(new Vertex<DestinasiWisata>(destinasi), new Vertex<DestinasiWisata>(destinasi2))));
 
         var maksGenerasi = 1000;
-        var jumlahPopulasi = 40;
+        var jumlahPopulasi = subGraph.Vertices.Count * 5;
 
         var random = new Random();
         var encoding = new OrdinalEncoding(subGraph.Vertices.Count);
@@ -146,7 +162,8 @@ app.MapGet(
             patience: 30,
             differentialWeight: 0.7,
             crossoverRate: 0.7,
-            elitism: true);
+            elitism: true,
+            pasanganMutasi: 2);
 
         logger.LogInformation("\nHasil :");
         logger.LogInformation($"Global Best : {encoding.Decode(result.GlobalBest)}");
@@ -158,50 +175,51 @@ app.MapGet(
         for (int i = 0; i < decoded.Dimension; i++)
             lintasan.Add(subGraph.Vertices[(int)decoded[i]].Value);
 
-        #region Testing
-        //var fAwal = 0.5;
-        //var crAwal = 0.5;
-        //var nAwal = 20;
+        while (lintasan[0] != harper)
+        {
+            var temp = lintasan[0];
+            lintasan.Remove(temp);
+            lintasan.Add(temp);
+        }
 
+        #region Testing
+        //var fAwal = 0.7;
+        //var crAwal = 0.7;
+
+        //var parameterTes = new List<(double f, double cr)>();
         //var hasilTes = new List<(double f, double cr, double n, double mGlobal, double mGenerasi)>();
 
-        //for (int i = 0; i < 5; i++)
+        //for (int i = 0; i < 3; i++)
+        //    for (int j = 0; j < 3; j++)
+        //        parameterTes.Add(((double f, double cr))(fAwal + i * 0.1, crAwal + j * 0.1));
+
+        //foreach (var (f, cr) in parameterTes)
         //{
-        //    var f = fAwal + i * 0.1;
-        //    for (int j = 0; j < 5; j++)
+        //    var tGlobal = 0d;
+        //    var tGenerasi = 0d;
+
+        //    for (int i = 0; i < 2; i++)
         //    {
-        //        var cr = crAwal + j * 0.1;
-        //        for (int k = 0; k < 5; k++)
-        //        {
-        //            var n = nAwal + k * 5;
+        //        var r = DifferentialEvolution.Run(
+        //            jumlahGen: subGraph.Vertices.Count,
+        //            jumlahPopulasi: jumlahPopulasi,
+        //            jenisOptimasi: JenisOptimasi.Min,
+        //            skemaMutasi: SkemaMutasi.Best,
+        //            jenisCrossover: JenisCrossover.Binomial,
+        //            fungsiObjektif: fungsiObjektif,
+        //            populasiAwal: populasiAwal,
+        //            encoding: encoding,
+        //            maksGenerasi: maksGenerasi,
+        //            patience: 40,
+        //            differentialWeight: f,
+        //            crossoverRate: cr);
 
-        //            var tGlobal = 0d;
-        //            var tGenerasi = 0d;
-
-        //            var pAwal = encoding.GeneratePopulasi(n);
-        //            for (int x = 0; x < 10; x++)
-        //            {
-        //                var r = DifferentialEvolution.Run(
-        //                    jumlahGen: subGraph.Vertices.Count,
-        //                    jumlahPopulasi: n,
-        //                    jenisOptimasi: JenisOptimasi.Min,
-        //                    skemaMutasi: SkemaMutasi.Best,
-        //                    jenisCrossover: JenisCrossover.Binomial,
-        //                    fungsiObjektif: fungsiObjektif,
-        //                    populasiAwal: pAwal,
-        //                    encoding: encoding,
-        //                    maksGenerasi: maksGenerasi,
-        //                    patience: 40,
-        //                    differentialWeight: f,
-        //                    crossoverRate: cr);
-
-        //                tGlobal += fungsiObjektif(encoding.Decode(r.GlobalBest));
-        //                tGenerasi += r.JumlahGenerasi;
-        //            }
-
-        //            hasilTes.Add((f, cr, n, tGlobal / 10d, tGenerasi / 10d));
-        //        }
+        //        tGlobal += fungsiObjektif(encoding.Decode(r.GlobalBest));
+        //        tGenerasi += r.JumlahGenerasi;
         //    }
+
+        //    logger.LogInformation($"F : {f}, CR : {cr}, n : {jumlahPopulasi}, Mean GB : {tGlobal/2d}, Mean Generasi : {tGenerasi/2d}");
+        //    hasilTes.Add((f, cr, jumlahPopulasi, tGlobal / 2d, tGenerasi / 2d));
         //}
         #endregion
 

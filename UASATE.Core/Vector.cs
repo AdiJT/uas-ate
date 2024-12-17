@@ -1,6 +1,6 @@
 ﻿namespace UASATE.Core;
 
-public class Vector
+public class Vector : IEquatable<Vector>
 {
     private readonly double[] _values;
 
@@ -44,6 +44,12 @@ public class Vector
     }
 
     public override string ToString() => $"[{string.Join(", ", _values.Select(s => s.ToString("F8")))}]";
+
+    public override int GetHashCode() => _values.Aggregate(0, HashCode.Combine);
+
+    public override bool Equals(object? obj) => obj is not null && obj is Vector other && other._values.SequenceEqual(_values);
+
+    public bool Equals(Vector? other) => other is not null && other._values.SequenceEqual(_values);
 
     public static Vector operator+(Vector left, Vector right)
     {
